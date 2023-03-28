@@ -1,5 +1,5 @@
 ---
-external help file: ValidateAadJwt-help.xml
+external help file: ValidateAADJwt-help.xml
 Module Name: ValidateAADJwt
 online version:
 schema: 2.0.0
