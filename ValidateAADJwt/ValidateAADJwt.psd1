@@ -12,7 +12,7 @@
 RootModule = 'ValidateAadJwt.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,7 +33,7 @@ Copyright = '(c) Francois LEON. All rights reserved.'
 Description = 'This module will help to validate only Azure Active Directory access tokens.'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '7.0'
+PowerShellVersion = '5.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
