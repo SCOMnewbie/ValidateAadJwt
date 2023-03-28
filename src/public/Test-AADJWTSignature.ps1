@@ -29,7 +29,7 @@
     begin {
         Write-Verbose 'Test-AADJWTSignature - Begin function'
         # To avoid issue when we activate Azure func auth
-        $AccessToken = $AccessToken.Replace('Bearer ','')
+        $Token = $Token.Replace('Bearer ','')
         if (-not $(Test-CacheFolder)) {
             New-CacheFolder
         }
