@@ -23,6 +23,21 @@ class TokenAzpacrValidationFailedException : System.Exception {
     }
 }
 
+class TokenTypValidationFailedException : System.Exception {
+    TokenTypValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
+class TokenAlgValidationFailedException : System.Exception {
+    TokenAlgValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
+class TokenKidValidationFailedException : System.Exception {
+    TokenKidValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
 class TokenAzpValidationFailedException : System.Exception {
     TokenAzpValidationFailedException ([string] $Message) : base($Message){
     }

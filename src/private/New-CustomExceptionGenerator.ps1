@@ -53,6 +53,18 @@
             $MyError = [TokenUnusableException]::new('Token provided are not usable')
             break
         }
+        'TypValidationFailed'{
+            $MyError = [TokenTypValidationFailedException]::new('Token typ is not valid')
+            break
+        }
+        'AlgValidationFailed'{
+            $MyError = [TokenAlgValidationFailedException]::new('Token alg is not valid')
+            break
+        }
+        'KidValidationFailed'{
+            $MyError = [TokenKidValidationFailedException]::new('Token kid is not valid')
+            break
+        }
     }
 
     throw $MyError

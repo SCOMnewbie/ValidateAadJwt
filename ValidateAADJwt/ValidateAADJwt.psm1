@@ -26,6 +26,21 @@ class TokenAzpacrValidationFailedException : System.Exception {
     }
 }
 
+class TokenTypValidationFailedException : System.Exception {
+    TokenTypValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
+class TokenAlgValidationFailedException : System.Exception {
+    TokenAlgValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
+class TokenKidValidationFailedException : System.Exception {
+    TokenKidValidationFailedException ([string] $Message) : base($Message){
+    }
+}
+
 class TokenAzpValidationFailedException : System.Exception {
     TokenAzpValidationFailedException ([string] $Message) : base($Message){
     }
@@ -223,6 +238,18 @@ function New-CustomExceptionGenerator {
             $MyError = [TokenUnusableException]::new('Token provided are not usable')
             break
         }
+        'TypValidationFailed'{
+            $MyError = [TokenTypValidationFailedException]::new('Token typ is not valid')
+            break
+        }
+        'AlgValidationFailed'{
+            $MyError = [TokenAlgValidationFailedException]::new('Token alg is not valid')
+            break
+        }
+        'KidValidationFailed'{
+            $MyError = [TokenKidValidationFailedException]::new('Token kid is not valid')
+            break
+        }
     }
 
     throw $MyError
@@ -400,12 +427,12 @@ function Test-AADJWTSignature {
         # Azure expose only JWT Token with algorithm RS256, iss "https://login.microsoftonline.com/<tenantid>/v2.0" or "https://sts.windows.net/<tenantId>/"
         if ($Jwt.Tokenheader.typ -ne 'JWT') {
             Write-Verbose 'Test-AADJWTSignature - typ not equal JWT'
-            New-CustomExceptionGenerator -TokenUnusable
+            New-CustomExceptionGenerator -TypValidationFailed
         }
 
         if ($Jwt.Tokenheader.alg -ne 'RS256') {
             Write-Verbose 'Test-AADJWTSignature - typ not equal alg'
-            New-CustomExceptionGenerator -TokenUnusable
+            New-CustomExceptionGenerator -AlgValidationFailed
         }
 
         $exp = (Get-Date 01.01.1970) + ([System.TimeSpan]::fromseconds($Jwt.TokenPayload.exp))
@@ -416,12 +443,12 @@ function Test-AADJWTSignature {
         $iss = @("https://login.microsoftonline.com/$tenantid/v2.0","https://sts.windows.net/$tenantid/") #v1 and v2 endpoint included
         if ($Jwt.TokenPayload.iss -notin $iss) {
             Write-Verbose 'Test-AADJWTSignature - not issued by Azure'
-            New-CustomExceptionGenerator -TokenUnusable
+            New-CustomExceptionGenerator -IssuerValidationFailed
         }
 
         if ($null -eq $Jwt.Tokenheader.kid) {
             Write-Verbose 'Test-AADJWTSignature - kid not defined'
-            New-CustomExceptionGenerator -TokenUnusable
+            New-CustomExceptionGenerator -KidValidationFailed
         }
 
         # Now it's time to read the signature
