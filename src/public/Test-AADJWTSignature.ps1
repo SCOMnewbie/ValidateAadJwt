@@ -40,35 +40,44 @@
 
     process {
 
-        $Jwt = ConvertFrom-Jwt -Token $Token -erroraction stop
+        $Jwt = ConvertFrom-Jwt -Token $Token -ErrorAction SilentlyContinue
 
         # Drop wrong token as quickly as possible
-
+        if($null -eq $Jwt){
+            Write-Verbose 'Test-AADJWTSignature - jwt is null'
+            return $false
+        }
         # Azure expose only JWT Token with algorithm RS256, iss "https://login.microsoftonline.com/<tenantid>/v2.0" or "https://sts.windows.net/<tenantId>/"
         if ($Jwt.Tokenheader.typ -ne 'JWT') {
             Write-Verbose 'Test-AADJWTSignature - typ not equal JWT'
-            New-CustomExceptionGenerator -TypValidationFailed
+            #New-CustomExceptionGenerator -TypValidationFailed
+            return $false
         }
 
         if ($Jwt.Tokenheader.alg -ne 'RS256') {
             Write-Verbose 'Test-AADJWTSignature - typ not equal alg'
-            New-CustomExceptionGenerator -AlgValidationFailed
+            #New-CustomExceptionGenerator -AlgValidationFailed
+            return $false
         }
 
         $exp = (Get-Date 01.01.1970) + ([System.TimeSpan]::fromseconds($Jwt.TokenPayload.exp))
         if ((New-TimeSpan -Start $(Get-Date -AsUTC) -End $exp).TotalSeconds -lt 0) {
-            New-CustomExceptionGenerator -TokenExpired
+            #New-CustomExceptionGenerator -TokenExpired
+            Write-Verbose 'Test-AADJWTSignature - token expired'
+            return $false
         }
 
         $iss = @("https://login.microsoftonline.com/$tenantid/v2.0","https://sts.windows.net/$tenantid/") #v1 and v2 endpoint included
         if ($Jwt.TokenPayload.iss -notin $iss) {
             Write-Verbose 'Test-AADJWTSignature - not issued by Azure'
-            New-CustomExceptionGenerator -IssuerValidationFailed
+            #New-CustomExceptionGenerator -IssuerValidationFailed
+            return $false
         }
 
         if ($null -eq $Jwt.Tokenheader.kid) {
             Write-Verbose 'Test-AADJWTSignature - kid not defined'
-            New-CustomExceptionGenerator -KidValidationFailed
+            #New-CustomExceptionGenerator -KidValidationFailed
+            return $false
         }
 
         # Now it's time to read the signature
@@ -108,7 +117,8 @@
             return $x509.PublicKey.Key.VerifyHash($computed, $bytes, [Security.Cryptography.HashAlgorithmName]::SHA256, [Security.Cryptography.RSASignaturePadding]::Pkcs1) # Returns True if the hash verifies successfully
         }
         catch {
-            New-CustomExceptionGenerator -SignatureValidationFailed
+            #New-CustomExceptionGenerator -SignatureValidationFailed
+            return $false
         }
     }
 }

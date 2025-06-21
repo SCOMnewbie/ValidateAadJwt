@@ -78,6 +78,8 @@
         }
     }
     catch {
-        New-CustomExceptionGenerator -TokenUnusable
+        #New-CustomExceptionGenerator -TokenUnusable
+        # If something is going wrong return null
+        return $null
     }
 }
